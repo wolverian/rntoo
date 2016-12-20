@@ -1,8 +1,9 @@
 #lang racket
 
 (require parser-tools/lex
-         parser-tools/lex-sre
+         (prefix-in : parser-tools/lex-sre)
          parser-tools/yacc
+         syntax/readerr
          (prefix-in ast/ "./ast.rkt"))
 
 (define-tokens non-terminals
@@ -16,13 +17,14 @@
    <comma>))
 
 (define-lex-abbrevs
-  (identifier (: (or alphabetic symbolic "-") (* (or alphabetic numeric symbolic "-")))))
+  (identifier (:: (:or alphabetic symbolic "-")
+                  (:* (:or alphabetic numeric symbolic "-")))))
 
 (define rnlex
   (lexer
    [(eof) (token-<eof>)]
    [whitespace (rnlex input-port)]
-   [(+ numeric) (token-<number> (string->number lexeme))]
+   [(:+ numeric) (token-<number> (string->number lexeme))]
    [identifier (token-<identifier> lexeme)]
    ["(" (token-<lparen>)]
    [")" (token-<rparen>)]
@@ -33,7 +35,7 @@
    (start start)
    (end <eof>)
    (tokens non-terminals terminals)
-   (error (λ (a b c) (void)))
+   (error (λ (a name val) (error "wut" a name val)))
    (grammar
     (start [() #f]
            [(error start) $2]
@@ -42,7 +44,10 @@
          [(<number>) (ast/literal $1)]
          [(message) $1]
          [(exp message) (ast/call $1 $2)])
-    (message [(<identifier> <lparen> <rparen>) (ast/message $1)]))))
+    (message [(<identifier> <lparen> arglist <rparen>) (ast/message $1 (reverse $3))])
+    (arglist [() null]
+             [(exp) (list $1)]
+             [(arglist <comma> exp) (cons $3 $1)]))))
 
 (define (parse s)
   (let ([result (rnparse (λ () (rnlex s)))])
