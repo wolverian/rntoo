@@ -13,8 +13,10 @@
   (<eof>
    <lparen>
    <rparen>
-   <comma>
-   <assign>))
+   <comma>))
+
+(define-empty-tokens operators
+  (<assign>))
 
 (define-lex-abbrevs
   (identifier (:: (:or alphabetic symbolic "-")
@@ -35,7 +37,7 @@
   (cfg-parser
    (start start)
    (end <eof>)
-   (tokens non-terminals terminals)
+   (tokens non-terminals terminals operators)
    (error (λ (a name val) (error "wut" a name val)))
    (grammar
     (start [() #f]
@@ -43,7 +45,7 @@
     (exp [(<identifier>) (ast/identifier $1)]
          [(<number>) (ast/literal $1)]
          [(message) $1]
-         [(exp <assign> exp) (ast/assign $1 $3)]
+         [(exp <assign> exp) (ast/op '= $1 $3)]
          [(exp message) (ast/call $1 $2)])
     (message [(<identifier> <lparen> arglist <rparen>) (ast/message $1 (reverse $3))])
     (arglist [() null]
