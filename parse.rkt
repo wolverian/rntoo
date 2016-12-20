@@ -49,7 +49,10 @@
              [(arglist <comma> exp) (cons $3 $1)]))))
 
 (define (parse s)
-  (let ([result (rnparse (λ () (rnlex s)))])
+  (let ([result (parse-one s)])
     (when result
       (printf "~a\n" result)
       (parse s))))
+
+(define (parse-one s)
+  (rnparse (λ () (rnlex s))))
