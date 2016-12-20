@@ -1,9 +1,8 @@
 #lang racket
 
-(require parser-tools/lex
-         (prefix-in : parser-tools/lex-sre)
+(require parser-tools/lex         
          parser-tools/yacc
-         syntax/readerr
+         (prefix-in : parser-tools/lex-sre)         
          (prefix-in ast/ "./ast.rkt"))
 
 (define-tokens non-terminals
