@@ -51,11 +51,10 @@
    (grammar
     (start [() #f]
            [(exp) $1])
-    (exp [(<identifier>) (ast/identifier $1)]
-         [(<number>) (ast/literal $1)]
+    (exp [(<number>) (ast/literal $1)]
          [(<string>) (ast/literal $1)]
          [(message) $1]
-         [(exp <assign> exp) (ast/message "assign" (list (ast/literal (string-append "\"" (ast/identifier-name $1) "\"")) $3))]
+         [(exp <assign> exp) (ast/message "assign" (list (ast/literal (string-append "\"" (ast/message-name $1) "\"")) $3))]
          [(exp message) (ast/call $1 $2)])
     (message [(<identifier> <lparen> arglist <rparen>) (ast/message $1 (reverse $3))]
              [(<plus> exp) (ast/message "plus" (list $2))]
