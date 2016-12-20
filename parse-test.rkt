@@ -11,5 +11,7 @@
 (parses "\"foo\"" (literal "\"foo\""))
 (parses "foo" (message "foo" null))
 (parses "42 foo" (call (literal 42) (message "foo" null)))
+(parses "42 + 22" (call (literal 42) (message "plus" (list (literal 22)))))
+
 (check-equal? (parse-one (open-input-string "foo = method(x, x)"))
               (parse-one (open-input-string "assign(\"foo\", method(x, x))")))
