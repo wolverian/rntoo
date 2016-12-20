@@ -73,3 +73,22 @@
 
 (define (parse-one s)
   (rnparse (λ () (rnlex s))))
+
+(module+ test
+  (require rackunit)
+
+  (define (parses-as? in expected)
+    (check-equal? (parse-one (open-input-string in)) expected))
+
+  (define (parses-equal? a b)
+    (check-equal? (parse-one (open-input-string a))
+                  (parse-one (open-input-string b))))
+
+  (parses-as? "42" (ast/literal 42))
+  (parses-as? "\"foo\"" (ast/literal "\"foo\""))
+  (parses-as? "foo" (ast/message "foo" null))
+  (parses-as? "42 foo" (ast/call (ast/literal 42) (ast/message "foo" null)))
+  (parses-as? "42 + 22" (ast/call (ast/literal 42) (ast/message "plus" (list (ast/literal 22)))))
+
+  (parses-equal? "foo = method(x, x)" "assign(\"foo\", method(x, x))")
+  (parses-equal? "42 + foo" "42 plus(foo)"))
