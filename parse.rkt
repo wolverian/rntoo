@@ -5,6 +5,8 @@
          (prefix-in : parser-tools/lex-sre)         
          (prefix-in ast/ "./ast.rkt"))
 
+(provide parse parse-one)
+
 (define-tokens non-terminals
   (<identifier>
    <number>))
@@ -47,7 +49,8 @@
          [(message) $1]
          [(exp <assign> exp) (ast/op '= $1 $3)]
          [(exp message) (ast/call $1 $2)])
-    (message [(<identifier> <lparen> arglist <rparen>) (ast/message $1 (reverse $3))])
+    (message [(<identifier> <lparen> arglist <rparen>) (ast/message $1 (reverse $3))]
+             [(<identifier>) (ast/message $1 null)])
     (arglist [() null]
              [(exp) (list $1)]
              [(arglist <comma> exp) (cons $3 $1)]))))
