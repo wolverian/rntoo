@@ -10,11 +10,11 @@
 (parses "42" (literal 42))
 (parses "foo" (identifier "foo"))
 (parses "42 foo" (call (literal 42) (message "foo" null)))
-(parses "foo = method(x, x +(2))" (op '=
-                                      (identifier "foo")
-                                      (message "method"
-                                               (list
-                                                (identifier "x")
-                                                (call (identifier "x")
-                                                      (message "+"
-                                                               (list (literal 2))))))))
+(parses "foo = method(x, x + 2)" (call (identifier "assign")
+                                       (list (identifier "foo")
+                                             (message "method"
+                                                      (list
+                                                       (identifier "x")
+                                                       (call (identifier "x")
+                                                             (message "plus"
+                                                                      (list (literal 2)))))))))
