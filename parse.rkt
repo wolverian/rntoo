@@ -9,7 +9,8 @@
 
 (define-tokens non-terminals
   (<identifier>
-   <number>))
+   <number>
+   <string>))
 
 (define-empty-tokens terminals
   (<eof>
@@ -25,7 +26,8 @@
 
 (define-lex-abbrevs
   (identifier (:: (:or alphabetic symbolic "-")
-                  (:* (:or alphabetic numeric symbolic "-")))))
+                  (:* (:or alphabetic numeric symbolic "-"))))
+  (string (:* any-string)))
 
 (define rnlex
   (lexer
@@ -37,6 +39,7 @@
    [")" (token-<rparen>)]
    ["," (token-<comma>)]
    ["+" (token-<plus>)]
+   [(:: "\"" string "\"") (token-<string> lexeme)]
    [identifier (token-<identifier> lexeme)]))
 
 (define rnparse
@@ -50,6 +53,7 @@
            [(exp) $1])
     (exp [(<identifier>) (ast/identifier $1)]
          [(<number>) (ast/literal $1)]
+         [(<string>) (ast/literal $1)]
          [(message) $1]
          [(exp <assign> exp) (ast/call (ast/identifier "assign") (list $1 $3))]
          [(exp message) (ast/call $1 $2)])
