@@ -1,7 +1,7 @@
 #lang racket
 
 (require parser-tools/lex         
-         parser-tools/yacc
+         parser-tools/cfg-parser
          (prefix-in : parser-tools/lex-sre)         
          (prefix-in ast/ "./ast.rkt"))
 
@@ -13,7 +13,8 @@
   (<eof>
    <lparen>
    <rparen>
-   <comma>))
+   <comma>
+   <assign>))
 
 (define-lex-abbrevs
   (identifier (:: (:or alphabetic symbolic "-")
@@ -24,24 +25,25 @@
    [(eof) (token-<eof>)]
    [whitespace (rnlex input-port)]
    [(:+ numeric) (token-<number> (string->number lexeme))]
-   [identifier (token-<identifier> lexeme)]
+   ["=" (token-<assign>)]
    ["(" (token-<lparen>)]
    [")" (token-<rparen>)]
-   ["," (token-<comma>)]))
+   ["," (token-<comma>)]
+   [identifier (token-<identifier> lexeme)]))
 
 (define rnparse
-  (parser
+  (cfg-parser
    (start start)
    (end <eof>)
    (tokens non-terminals terminals)
    (error (λ (a name val) (error "wut" a name val)))
    (grammar
     (start [() #f]
-           [(error start) $2]
            [(exp) $1])
     (exp [(<identifier>) (ast/identifier $1)]
          [(<number>) (ast/literal $1)]
          [(message) $1]
+         [(exp <assign> exp) (ast/assign $1 $3)]
          [(exp message) (ast/call $1 $2)])
     (message [(<identifier> <lparen> arglist <rparen>) (ast/message $1 (reverse $3))])
     (arglist [() null]
