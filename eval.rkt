@@ -4,7 +4,7 @@
          "ast.rkt")
 
 (define (todo . args)
-  (apply error args))
+  (apply error "todo:" args))
 
 (define (rneval s)
   (rneval* (parse-one (open-input-string s)) initial-env))
