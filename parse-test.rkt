@@ -18,3 +18,4 @@
 (parses "42 + 22" (call (literal 42) (message "plus" (list (literal 22)))))
 
 (parses-equal "foo = method(x, x)" "assign(\"foo\", method(x, x))")
+(parses-equal "42 + foo" "42 plus(foo)")
