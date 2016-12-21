@@ -3,7 +3,7 @@
 (require parser-tools/lex         
          parser-tools/cfg-parser
          (prefix-in : parser-tools/lex-sre)         
-         (prefix-in ast/ "./ast.rkt"))
+         (prefix-in ast/ "ast.rkt"))
 
 (provide parse parse-one)
 
