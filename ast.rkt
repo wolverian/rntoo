@@ -7,7 +7,6 @@
 (struct message ((name : String) (args : (Listof Expr))) #:transparent)
 (struct call ((receiver : Expr) (msg : message)) #:transparent)
 (struct literal ((value : (U Number String))) #:transparent)
-(struct op ((name : String) (to : Any) (value : Any)) #:transparent)
 
-(define-type Expr (U message call literal op))
+(define-type Expr (U message call literal))
 (define-predicate Expr? Expr)
