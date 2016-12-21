@@ -1,7 +1,7 @@
 #lang racket
 
 (require "parse.rkt"
-         "ast.rkt"
+         (prefix-in ast/ "ast.rkt")
          "bind.rkt")
 
 (define (todo . args)
@@ -10,15 +10,15 @@
 (define (rneval s)
   (rneval* (parse-one (open-input-string s)) initial-env))
 
-(define current-context (literal "current-context"))
+(define current-context (ast/literal "current-context"))
 
 (define (rneval* exp env)
   (match exp
-    [(literal v)
+    [(ast/literal v)
      v]
-    [(message msg args)
-     (rneval* (call current-context (message msg args)) env)]
-    [(call receiver (message msg args))
+    [(ast/message msg args)
+     (rneval* (ast/call current-context (ast/message msg args)) env)]
+    [(ast/call receiver (ast/message msg args))
      (apply (lookup env msg)
             (rneval* receiver env)
             (map (λ (a) (rneval* a env)) args))]))
