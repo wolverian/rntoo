@@ -5,18 +5,18 @@
 (provide (all-defined-out))
 
 (define-type Fn (-> run/Value * run/Value))
-(struct environment ((bindings : (HashTable String Fn))
-                     (up : (U environment #f))))
+(struct table ((bindings : (HashTable String Fn))
+               (up : (U table #f))))
 
-(: lookup (-> (U environment #f) String Fn))
+(: lookup (-> (U table #f) String Fn))
 (define/match (lookup env name)
   ((#f name) (error "no name" name))
-  (((environment bindings up) name) (hash-ref bindings name (λ () (lookup up name)))))
+  (((table bindings up) name) (hash-ref bindings name (λ () (lookup up name)))))
 
-(: push (-> environment environment))
+(: push (-> table table))
 (define (push env)
-  (environment (hash) env))
+  (table (hash) env))
 
-(: pop (-> environment environment))
+(: pop (-> table table))
 (define (pop env)
-  (or (environment-up env) env))
+  (or (table-up env) env))
