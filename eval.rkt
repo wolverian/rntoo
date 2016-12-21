@@ -14,7 +14,7 @@
 (define current-context (ast/literal "current-context"))
 
 (define/contract (rneval* exp env)
-  (-> ast/ast? environment? run/Value?)
+  (-> ast/Expr? environment? run/Value?)
   (match exp
     [(ast/literal v)
      (run/number v)]

@@ -1,11 +1,13 @@
-#lang racket
+#lang typed/racket
+
+(require (prefix-in run/ "runtime.rkt"))
 
 (provide (all-defined-out))
 
-(struct message (name args) #:transparent)
-(struct call (receiver message) #:transparent)
-(struct literal (value) #:transparent)
-(struct op (name to value) #:transparent)
+(struct message ((name : String) (args : (Listof Expr))) #:transparent)
+(struct call ((receiver : Expr) (msg : message)) #:transparent)
+(struct literal ((value : (U Number String))) #:transparent)
+(struct op ((name : String) (to : Any) (value : Any)) #:transparent)
 
-(define (ast? x)
-  (or (message? x) (call? x) (literal? x) (op? x)))
+(define-type Expr (U message call literal op))
+(define-predicate Expr? Expr)
