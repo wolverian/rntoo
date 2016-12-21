@@ -19,8 +19,8 @@
     [(ast/literal v)
      (run/number v)]
     [(ast/message msg args)
-     (rneval* (ast/call current-context (ast/message msg args)) env)]
-    [(ast/call receiver (ast/message msg args))
+     (rneval* (ast/send current-context (ast/message msg args)) env)]
+    [(ast/send receiver (ast/message msg args))
      (apply (lookup env msg)
             (rneval* receiver env)
             (map (λ (a) (rneval* a env)) args))]))
