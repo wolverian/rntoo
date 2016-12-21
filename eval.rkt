@@ -1,7 +1,8 @@
 #lang racket
 
 (require "parse.rkt"
-         "ast.rkt")
+         "ast.rkt"
+         "bind.rkt")
 
 (define (todo . args)
   (apply error "todo:" args))
@@ -18,16 +19,14 @@
     [(message msg args)
      (rneval* (call current-context (message msg args)) env)]
     [(call receiver (message msg args))
-     (apply (lookup msg env)
+     (apply (lookup env msg)
             (rneval* receiver env)
             (map (λ (a) (rneval* a env)) args))]))
 
-(define (lookup n env)
-  (hash-ref env n))
-
 (define initial-env
-  (hash "plus" +
-        "assign" todo))
+  (environment (hash "plus" +
+             "assign" todo)
+       #f))
 
 (module+ test
   (require rackunit)
