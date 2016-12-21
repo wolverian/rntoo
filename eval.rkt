@@ -25,8 +25,8 @@
 
 (define initial-env
   (environment (hash "plus" +
-             "assign" todo)
-       #f))
+                     "assign" todo)
+               #f))
 
 (module+ test
   (require rackunit)
