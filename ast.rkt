@@ -6,3 +6,6 @@
 (struct call (receiver message) #:transparent)
 (struct literal (value) #:transparent)
 (struct op (name to value) #:transparent)
+
+(define (ast? x)
+  (or (message? x) (call? x) (literal? x) (op? x)))

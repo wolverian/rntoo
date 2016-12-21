@@ -2,6 +2,7 @@
 
 (require "parse.rkt"
          (prefix-in ast/ "ast.rkt")
+         (prefix-in run/ "runtime.rkt")
          "bind.rkt")
 
 (define (todo . args)
@@ -12,10 +13,11 @@
 
 (define current-context (ast/literal "current-context"))
 
-(define (rneval* exp env)
+(define/contract (rneval* exp env)
+  (-> ast/ast? environment? run/Value?)
   (match exp
     [(ast/literal v)
-     v]
+     (run/number v)]
     [(ast/message msg args)
      (rneval* (ast/call current-context (ast/message msg args)) env)]
     [(ast/call receiver (ast/message msg args))
@@ -23,14 +25,17 @@
             (rneval* receiver env)
             (map (λ (a) (rneval* a env)) args))]))
 
+(define (builtin-+ . args)
+  (run/number (apply + (map run/number-value args))))
+
 (define initial-env
-  (environment (hash "plus" +
-                     "assign" todo)
-               #f))
+  (environment (hash "plus" builtin-+
+               "assign" todo)
+  #f))
 
 (module+ test
   (require rackunit)
 
-  (check-equal? (rneval "42") 42)
-  (check-equal? (rneval "42 + 22") 64)
+  (check-equal? (rneval "42") (run/number 42))
+  (check-equal? (rneval "42 + 22") (run/number 64))
   (check-exn exn:fail? (λ () (rneval "foo = 42"))))

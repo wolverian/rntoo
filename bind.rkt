@@ -1,8 +1,10 @@
 #lang typed/racket
 
+(require (prefix-in run/ "runtime.rkt"))
+
 (provide (all-defined-out))
 
-(define-type Fn (-> Any * Any))
+(define-type Fn (-> run/Value * run/Value))
 (struct environment ((bindings : (HashTable String Fn))
                      (up : (U environment #f))))
 
