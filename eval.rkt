@@ -30,8 +30,8 @@
 
 (define initial-env
   (bind/table (hash "plus" builtin-+
-               "assign" todo)
-         #f))
+                    "assign" todo)
+              #f))
 
 (module+ test
   (require rackunit)
