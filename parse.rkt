@@ -5,7 +5,8 @@
          (prefix-in : parser-tools/lex-sre)         
          (prefix-in ast/ "ast.rkt"))
 
-(provide parse parse-one)
+(provide (rename-out (parse all)
+                     (parse-one one)))
 
 (define-tokens non-terminals
   (<identifier>

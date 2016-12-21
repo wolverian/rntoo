@@ -1,6 +1,6 @@
 #lang racket
 
-(require "parse.rkt"
+(require (prefix-in parse/ "parse.rkt")
          (prefix-in ast/ "ast.rkt")
          (prefix-in run/ "runtime.rkt")
          "bind.rkt")
@@ -9,7 +9,7 @@
   (apply error "todo:" args))
 
 (define (rneval s)
-  (rneval* (parse-one (open-input-string s)) initial-env))
+  (rneval* (parse/one (open-input-string s)) initial-env))
 
 (define current-context (ast/literal "current-context"))
 
