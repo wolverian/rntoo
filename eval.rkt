@@ -23,15 +23,15 @@
             (map (λ (a) (rneval* a env)) args))]))
 
 (define (lookup n env)
-  (second (assoc n env)))
+  (hash-ref env n))
 
 (define initial-env
-  (list (list "plus" +)
-        (list "assign" todo)))
+  (hash "plus" +
+        "assign" todo))
 
 (module+ test
   (require rackunit)
 
   (check-equal? (rneval "42") 42)
   (check-equal? (rneval "42 + 22") 64)
-  (check-equal? (rneval "foo = 42") void))
+  (check-exn exn:fail? (λ () (rneval "foo = 42"))))
