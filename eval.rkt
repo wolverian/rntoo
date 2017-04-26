@@ -46,14 +46,18 @@
 
 (: initial-env bind/table)
 (define initial-env
-  (bind/table (hash "plus" (cast builtin-+ bind/Fn)
-                    "assign" (ann todo bind/Fn)
-                    "version" (match-lambda*
-                                [(list-rest receiver args)
-                                 (begin
-                                   (display receiver)
-                                   (run/string "0.0.1"))]))
-              #f))
+  (bind/table
+   (hash "plus"
+         (cast builtin-+ bind/Fn)
+         "assign"
+         (ann todo bind/Fn)
+         "version"
+         (match-lambda*
+           [(list-rest receiver args)
+            (begin
+              (display receiver)
+              (run/string "0.0.1"))]))
+   #f))
 
 (module+ test
   (require typed/rackunit)

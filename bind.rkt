@@ -5,6 +5,7 @@
 (provide (all-defined-out))
 
 (define-type Fn (-> run/Value * run/Value))
+
 (struct table ((bindings : (HashTable String Fn))
                (up : (U table #f))))
 
