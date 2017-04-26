@@ -21,16 +21,14 @@
 
 (define current-context (ast/literal "current-context"))
 
-(define-predicate Number? Number)
-
 (: rneval* (-> bind/table ast/Expr run/Value))
 (define (rneval* env exp)
   (match exp
     [(ast/literal v)
-     (if (Number? v)
-         (run/number v)
-         (run/string v))]
-    [(and msg (ast/message msg args))
+     (match v
+       [(? number? v) (run/number v)]
+       [(? string? v) (run/string v)])]       
+    [(? ast/message? msg)
      (~>> (ast/send current-context msg)
           (rneval* env))]
     [(ast/send receiver (ast/message msg args))
