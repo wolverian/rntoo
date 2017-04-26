@@ -21,7 +21,6 @@
 
 (: rneval* (-> ast/Expr bind/table run/Value))
 (define (rneval* exp env)
-  ;(-> ast/Expr? bind/table? run/Value?)
   (match exp
     [(ast/literal v)
      (if (Number? v)
