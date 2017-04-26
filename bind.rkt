@@ -10,8 +10,8 @@
 
 (: lookup (-> (U table #f) String Fn))
 (define/match (lookup env name)
-  ((#f name) (error "no name" name))
-  (((table bindings up) name) (hash-ref bindings name (λ () (lookup up name)))))
+  [(#f name) (error "no name" name)]
+  [((table bindings up) name) (hash-ref bindings name (λ () (lookup up name)))])
 
 (: push (-> table table))
 (define (push env)
