@@ -19,7 +19,8 @@
        parse/one
        (rneval* initial-env)))
 
-(define current-context (ast/literal "current-context"))
+(: lobby run/obj)
+(define lobby (run/obj (hash "list" builtin-list)))
 
 (: rneval* (-> bind/table ast/Expr run/Value))
 (define (rneval* env exp)
@@ -29,7 +30,7 @@
        [(? number? v) (run/number v)]
        [(? string? v) (run/string v)])]       
     [(? ast/message? msg)
-     (~>> (ast/send current-context msg)
+     (~>> (ast/send lobby msg)
           (rneval* env))]
     [(ast/send receiver (ast/message msg args))
      (let ([fun (bind/lookup env msg)]
@@ -44,10 +45,16 @@
        (apply +)
        run/number))
 
+(: builtin-list (-> run/Value * run/list))
+(define (builtin-list . arguments)
+  (run/list arguments))
+
 (: initial-env bind/table)
 (define initial-env
   (bind/table
-   (hash "plus"
+   (hash "list"
+         (ann builtin-list bind/Fn)
+         "plus"
          (cast builtin-+ bind/Fn)
          "assign"
          (ann todo bind/Fn)
@@ -62,6 +69,7 @@
 (module+ test
   (require typed/rackunit)
 
+  (check-equal? (rneval "list(1, 2, 3)") (run/list (list (run/number 1) (run/number 2) (run/number 3))))
   (check-equal? (rneval "version") (run/string "0.0.1"))
   (check-equal? (rneval "42") (run/number 42))
   (check-equal? (rneval "42 + 22") (run/number 64))

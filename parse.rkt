@@ -90,6 +90,7 @@
   (parses-as? "foo" (ast/message "foo" null))
   (parses-as? "42 foo" (ast/send (ast/literal 42) (ast/message "foo" null)))
   (parses-as? "42 + 22" (ast/send (ast/literal 42) (ast/message "plus" (list (ast/literal 22)))))
+  (parses-as? "list()" (ast/receiverless-send (ast/message "list" null)))
 
   (parses-equal? "foo = method(x, x)" "assign(\"foo\", method(x, x))")
   (parses-equal? "42 + foo" "42 plus(foo)"))
