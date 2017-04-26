@@ -14,29 +14,29 @@
 
 (: rneval (-> String run/Value))
 (define (rneval s)
-  (~> s
-      open-input-string
-      parse/one
-      (rneval* initial-env)))
+  (~>> s
+       open-input-string
+       parse/one
+       (rneval* initial-env)))
 
 (define current-context (ast/literal "current-context"))
 
 (define-predicate Number? Number)
 
-(: rneval* (-> ast/Expr bind/table run/Value))
-(define (rneval* exp env)
+(: rneval* (-> bind/table ast/Expr run/Value))
+(define (rneval* env exp)
   (match exp
     [(ast/literal v)
      (if (Number? v)
          (run/number v)
          (run/string v))]
     [(and msg (ast/message msg args))
-     (~> (ast/send current-context msg)
-         (rneval* env))]
+     (~>> (ast/send current-context msg)
+          (rneval* env))]
     [(ast/send receiver (ast/message msg args))
      (let ([fun (bind/lookup env msg)]
-           [rec (rneval* receiver env)]
-           [args (map (λ ([a : ast/Expr]) (rneval* a env)) args)])
+           [rec (rneval* env receiver)]
+           [args (map (curry rneval* env) args)])
        (apply fun rec args))]))
 
 (: builtin-+ (-> run/number * run/number))
