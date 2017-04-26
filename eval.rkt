@@ -41,7 +41,10 @@
 
 (: builtin-+ (-> run/number * run/number))
 (define (builtin-+ . as)
-  (run/number (apply + (map run/number-value as))))
+  (~>> as
+       (map run/number-value)
+       (apply +)
+       run/number))
 
 (: initial-env bind/table)
 (define initial-env
