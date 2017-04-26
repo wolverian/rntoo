@@ -2,7 +2,8 @@
 
 (require (prefix-in ast/ "ast.rkt")
          (prefix-in run/ "runtime.rkt")
-         (prefix-in bind/ "bind.rkt"))
+         (prefix-in bind/ "bind.rkt")
+         threading)
 
 (require/typed (prefix-in parse/ "parse.rkt")
                [parse/one (-> Input-Port ast/Expr)])
@@ -13,7 +14,10 @@
 
 (: rneval (-> String run/Value))
 (define (rneval s)
-  (rneval* (parse/one (open-input-string s)) initial-env))
+  (~> s
+      open-input-string
+      parse/one
+      (rneval* initial-env)))
 
 (define current-context (ast/literal "current-context"))
 
@@ -26,12 +30,14 @@
      (if (Number? v)
          (run/number v)
          (run/string v))]
-    [(ast/message msg args)
-     (rneval* (ast/send current-context (ast/message msg args)) env)]
+    [(and msg (ast/message msg args))
+     (~> (ast/send current-context msg)
+         (rneval* env))]
     [(ast/send receiver (ast/message msg args))
-     (apply (bind/lookup env msg)
-            (rneval* receiver env)
-            (map (λ ([a : ast/Expr]) (rneval* a env)) args))]))
+     (let ([fun (bind/lookup env msg)]
+           [rec (rneval* receiver env)]
+           [args (map (λ ([a : ast/Expr]) (rneval* a env)) args)])
+       (apply fun rec args))]))
 
 (: builtin-+ (-> run/number * run/number))
 (define (builtin-+ . as)
