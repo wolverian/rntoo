@@ -38,8 +38,8 @@
        (apply fun rec args))]))
 
 (: builtin-+ (-> run/number * run/number))
-(define (builtin-+ . as)
-  (~>> as
+(define (builtin-+ . arguments)
+  (~>> arguments
        (map run/number-value)
        (apply +)
        run/number))
