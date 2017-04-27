@@ -43,12 +43,15 @@
                                    native-list)))))
        null))
 
-(define initial (object))
-
 (define (block scope code)
   (obj (list (slot "scope" scope)
              (slot "code" code))
        initial))
+
+
+; it all begins here
+
+(define initial (object))
 
 ; do a call!
 
