@@ -34,12 +34,16 @@
 (define (native-list values)
   (obj (list (slot "values" values)) initial))
 
+(define (native-string s)
+  (obj (list (slot "value" s)) initial))
+
 (define (object)
   (obj (list (slot "slotNames"
                    (native-fun
                     (λ (self) (~>> self
                                    obj-slots
                                    (map slot-name)
+                                   (map native-string)
                                    native-list)))))
        null))
 
@@ -47,7 +51,6 @@
   (obj (list (slot "scope" scope)
              (slot "code" code))
        initial))
-
 
 ; it all begins here
 
@@ -67,4 +70,4 @@
 (module+ test
   (require typed/rackunit)
   (check-equal? (do-call (call initial (message "slotNames" null)))
-                (native-list (list "slotNames"))))
+                (native-list (list (native-string "slotNames")))))
