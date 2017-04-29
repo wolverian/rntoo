@@ -160,6 +160,8 @@
 (module+ test
   (require rackunit)
 
+  ; next: how to define methods inside oi
+
   (define-simple-check (rn-check? actual expected)
     (rn-equal? (rn-do-calls (rn-eval (parse/string actual)))
                expected))
