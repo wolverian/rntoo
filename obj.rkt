@@ -1,10 +1,11 @@
 #lang racket
 
-(require threading)
+(require threading
+         (prefix-in ast/ "ast.rkt"))
 
 ; primitive types
 
-(struct obj (slots proto) #:transparent)
+(struct obj (type slots proto) #:transparent)
 (struct native-fun (fun) #:transparent)
 
 (define (slot name value)
@@ -14,41 +15,47 @@
 (define slot-value second)
 
 (define (slot-lookup target name)
-  (~>> target
-       obj-slots
-       (assoc name)
-       second))
+  (let ([immediate (~>> target
+                        obj-slots
+                        (assoc name))])
+    (if (list? immediate)
+        (second immediate)
+        (slot-lookup (obj-proto target) name))))
 
 ; object types
 
 (define (message name args)
-  (obj (list (slot "name" name)
+  (obj "message"
+       (list (slot "name" name)
              (slot "args" args))
        initial))
 
 (define (call target message)
-  (obj (list (slot "target" target)
+  (obj "call"
+       (list (slot "target" target)
              (slot "message" message))
        initial))
 
-(define (native-list values)
-  (obj (list (slot "values" values)) initial))
+(define (rn-list values)
+  (obj "list" (list (slot "values" values)) initial))
 
-(define (native-string s)
-  (obj (list (slot "value" s)) initial))
+(define (rn-string s)
+  (obj "string" (list (slot "value" s)) initial))
 
 (define (object)
-  (obj (list (slot "slotNames"
+  (obj "object"
+       (list (slot "slotNames"
                    (native-fun
                     (λ (self) (~>> self
                                    obj-slots
                                    (map slot-name)
-                                   (map native-string)
-                                   native-list)))))
+                                   (map rn-string)
+                                   rn-list)))))
        null))
 
 (define (block scope code)
-  (obj (list (slot "scope" scope)
+  (obj "block"
+       (list (slot "scope" scope)
              (slot "code" code))
        initial))
 
@@ -62,12 +69,29 @@
   (let* ([target (slot-lookup call "target")]
          [message (slot-lookup call "message")]
          [name (slot-lookup message "name")]
-         [code (slot-lookup target name)])
+         [real-name (slot-lookup name "value")]
+         [code (slot-lookup target real-name)])
     (if (native-fun? code)
         ((native-fun-fun code) target)
         (error "unimplemented"))))
 
+; evaluate ast
+
+(define/match (rn-eval expr)
+  [((ast/literal value)) (rn-string value)]
+  [((ast/send receiver message)) (call (rn-eval receiver)
+                                       (rn-eval message))]
+  [((ast/message name args)) (message (rn-string name)
+                                      (map rn-eval args))])
+
 (module+ test
-  (require typed/rackunit)
-  (check-equal? (do-call (call initial (message "slotNames" null)))
-                (native-list (list (native-string "slotNames")))))
+  (require rackunit)
+  
+  (check-equal? (rn-eval (ast/literal "foo"))
+                (rn-string "foo"))
+  (check-equal? (rn-eval (ast/message "foo" null))
+                (message (rn-string "foo") null))
+  (let ([code (rn-eval (ast/send (ast/literal "foo") (ast/message "slotNames" null)))]
+        [expected (call (rn-string "foo") (message (rn-string "slotNames") null))])
+    (check-equal? code expected)
+    (check-equal? (do-call code) (rn-list (list (rn-string "value"))))))
