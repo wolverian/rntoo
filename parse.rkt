@@ -6,7 +6,8 @@
          (prefix-in ast/ "ast.rkt"))
 
 (provide (rename-out (parse all)
-                     (parse-one one)))
+                     (parse-one one)
+                     (parse-string string)))
 
 (define-tokens non-terminals
   (<identifier>
@@ -74,6 +75,9 @@
 
 (define (parse-one s)
   (rnparse (λ () (rnlex s))))
+
+(define (parse-string s)
+  (parse-one (open-input-string s)))
 
 (module+ test
   (require rackunit)
